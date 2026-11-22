@@ -11,4 +11,5 @@ First version.
 - Event-driven through UI Automation (focus changes, Invoked, window opened); no polling. Single instance; `--quit` stops the running copy.
 - Decision log in `%LOCALAPPDATA%\StartUninstall\log.txt` (rolls over at 1 MB); `STARTUNINSTALL_DEBUG=1` adds every relevant focus change.
 - `install.ps1` / `uninstall.ps1`: build, install to `%LOCALAPPDATA%\Programs\StartUninstall`, start with Windows, Start menu shortcut.
+- `bootstrap.ps1`: one-line install from the latest release (`irm .../bootstrap.ps1 | iex`), with SHA-256 check, `-Uninstall`, `-Purge`, `-NoAutostart`, `-Tag`. Merging a version bump publishes the release automatically.
 - Core library: ProductCode matching (MSI advertised shortcuts), Start tile id and search result parsing, the localized "Uninstall" names.

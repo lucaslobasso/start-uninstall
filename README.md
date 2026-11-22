@@ -25,17 +25,32 @@ There is no new menu and nothing to learn: you keep using Windows' own **Uninsta
 ## Requirements
 
 - Windows 11 (built and tested on build 26300, English display language; see [Limits](#limits)).
-- To build: the [.NET 11 SDK](https://dotnet.microsoft.com/download) and the Visual Studio **Desktop development with C++** workload (Native AOT uses the MSVC linker; Build Tools are enough).
+- Nothing else for the one-line install: the release is a self-contained native exe.
+- To build from source: the [.NET 11 SDK](https://dotnet.microsoft.com/download) and the Visual Studio **Desktop development with C++** workload (Native AOT uses the MSVC linker; Build Tools are enough).
 
 ## Install
+
+**One line** (PowerShell, no SDK or git needed):
+
+```powershell
+irm https://raw.githubusercontent.com/lucaslobasso/start-uninstall/main/bootstrap.ps1 | iex
+```
+
+It downloads `StartUninstall.exe` from the latest release, checks its SHA-256, installs it to `%LOCALAPPDATA%\Programs\StartUninstall` and starts it with Windows. Read [`bootstrap.ps1`](bootstrap.ps1) first if you like; it's short. Without autostart:
+
+```powershell
+& ([scriptblock]::Create((irm https://raw.githubusercontent.com/lucaslobasso/start-uninstall/main/bootstrap.ps1))) -NoAutostart
+```
+
+**From source** (contributors): needs the .NET 11 SDK and the C++ workload above.
 
 ```powershell
 git clone https://github.com/lucaslobasso/start-uninstall
 cd start-uninstall
-.\install.ps1                 # builds, installs to %LOCALAPPDATA%\Programs\StartUninstall, starts with Windows; -NoAutostart
+.\install.ps1                 # builds, installs, starts with Windows; -NoAutostart
 ```
 
-It also adds a **Start Uninstall** Start menu shortcut, which starts the helper again if you stopped it (starting it twice does nothing: only one copy runs).
+Either way it also adds a **Start Uninstall** Start menu shortcut, which starts the helper again if you stopped it (starting it twice does nothing: only one copy runs).
 
 ## How it works
 
@@ -71,8 +86,10 @@ started uninstaller pid=18952 (1256 ms)
 ## Uninstall
 
 ```powershell
-.\uninstall.ps1               # add -Purge to also delete the log
+& ([scriptblock]::Create((irm https://raw.githubusercontent.com/lucaslobasso/start-uninstall/main/bootstrap.ps1))) -Uninstall
 ```
+
+From a clone: `.\uninstall.ps1`. Add `-Purge` to either to also delete the log.
 
 ## Contributing
 
