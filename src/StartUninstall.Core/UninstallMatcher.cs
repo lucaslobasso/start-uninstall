@@ -17,11 +17,26 @@ public sealed class UninstallMatcher
 
     public UninstallMatcher(IUninstallSource source) : this(source.GetEntries()) { }
 
-    public MatchResult Match(string startDisplayName, string? shortcutTargetPath = null)
+    /// <param name="startDisplayName">The app's name as Start shows it.</param>
+    /// <param name="shortcutTargetPath">The Start shortcut's target (exe), when known.</param>
+    /// <param name="productCode">The MSI ProductCode of an advertised shortcut (MsiGetShortcutTarget), when known: the
+    /// strongest signal, checked first.</param>
+    public MatchResult Match(string startDisplayName, string? shortcutTargetPath = null, string? productCode = null)
     {
-        if (string.IsNullOrWhiteSpace(startDisplayName)) return MatchResult.NoMatch;
-        var name = startDisplayName.Trim();
         var named = _entries.Where(e => !string.IsNullOrWhiteSpace(e.DisplayName)).ToList();
+        if (!string.IsNullOrWhiteSpace(productCode))
+        {
+            var code = productCode.Trim();
+            var byCode = named.Where(e => string.Equals(e.ProductCode, code, StringComparison.OrdinalIgnoreCase)).ToList();
+            if (byCode.Count > 0) return Resolve(byCode, MatchKind.Exact, shortcutTargetPath);
+        }
+        if (string.IsNullOrWhiteSpace(startDisplayName))
+        {
+            if (string.IsNullOrWhiteSpace(shortcutTargetPath)) return MatchResult.NoMatch;
+            var onlyPath = ByShortcut(named, shortcutTargetPath!);
+            return onlyPath.Count > 0 ? Resolve(onlyPath, MatchKind.Single, null) : MatchResult.NoMatch;
+        }
+        var name = startDisplayName.Trim();
 
         var exact = named.Where(e => string.Equals(e.DisplayName!.Trim(), name, StringComparison.OrdinalIgnoreCase)).ToList();
         if (exact.Count > 0) return Resolve(exact, MatchKind.Exact, shortcutTargetPath);
